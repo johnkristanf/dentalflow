@@ -1,4 +1,4 @@
-import type { SanityDentist, SanityReview } from "@/lib/sanity";
+import type { SanityDentist, SanityReview } from "@/types/dental-types";
 
 function StarRating({ rating }: { rating: number }) {
   return (

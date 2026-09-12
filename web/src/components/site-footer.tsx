@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { SanityClinic, SanityService, SanityDentist } from "@/lib/sanity";
+import type { SanityClinic, SanityDentist, SanityService } from "@/types/dental-types";
 
 interface SiteFooterProps {
   clinic?: SanityClinic | null;

@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 
+import { getServiceCategories } from "@/api/sanity/categories";
+import { getClinic } from "@/api/sanity/clinic";
+import { getDentist } from "@/api/sanity/dentist";
+import { getFaqs } from "@/api/sanity/faqs";
+import { getReviews } from "@/api/sanity/reviews";
 import { BookingSection } from "@/components/booking-section";
 import { FaqSection } from "@/components/faq-section";
 import { HeroSection } from "@/components/hero-section";
@@ -8,10 +13,10 @@ import { ServicesSection } from "@/components/services-section";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteNav } from "@/components/site-nav";
 import { TrustSection } from "@/components/trust-section";
-import { getLandingPageData } from "@/lib/sanity";
+import { formatPhoneHref } from "@/utils/format-phone";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { clinic } = await getLandingPageData();
+  const clinic = await getClinic();
 
   if (!clinic) {
     return {
@@ -28,21 +33,29 @@ export async function generateMetadata(): Promise<Metadata> {
     clinic.tagline ||
     `Gentle, modern dental care at ${clinic.name}. General, cosmetic, and emergency dental services.`;
 
-  return {
-    title,
-    description,
-  };
+  return { title, description };
 }
 
 export default async function HomePage() {
-  const { clinic, services, dentist, reviews, faqs } = await getLandingPageData();
+  const [clinic, categories, dentist, reviews, faqs] = await Promise.all([
+    getClinic(),
+    getServiceCategories(),
+    getDentist(),
+    getReviews(),
+    getFaqs(),
+  ]);
+
+  const safeCategories = categories ?? [];
+  const safeServices = safeCategories.flatMap((c) => c.services);
+  const safeReviews = reviews ?? [];
+  const safeFaqs = faqs ?? [];
 
   const jsonLd = clinic
     ? {
       "@context": "https://schema.org",
       "@type": "DentalClinic",
       name: clinic.name,
-      telephone: clinic.phone?.replace(/[^+\d]/g, ""),
+      telephone: formatPhoneHref(clinic.phone) ?? undefined,
       email: clinic.email,
       priceRange: "$$",
       medicalSpecialty: "Dentistry",
@@ -68,11 +81,11 @@ export default async function HomePage() {
     : null;
 
   const faqJsonLd =
-    faqs.length > 0
+    safeFaqs.length > 0
       ? {
         "@context": "https://schema.org",
         "@type": "FAQPage",
-        mainEntity: faqs.map((f) => ({
+        mainEntity: safeFaqs.map((f) => ({
           "@type": "Question",
           name: f.question,
           acceptedAnswer: { "@type": "Answer", text: f.answer },
@@ -100,13 +113,13 @@ export default async function HomePage() {
       <main id="main-content">
         <HeroSection clinic={clinic} />
         <ServicesSection
-          services={services}
+          categories={safeCategories}
           emergencyPhone={clinic?.emergencyPhone ?? clinic?.phone}
           emergencyNotice={clinic?.emergencyNotice}
         />
         <TrustSection
           dentist={dentist}
-          reviews={reviews}
+          reviews={safeReviews}
           rating={clinic?.rating}
           reviewCount={clinic?.reviewCount}
         />
@@ -115,12 +128,12 @@ export default async function HomePage() {
           phone={clinic?.phone}
           clinicName={clinic?.name}
           hours={clinic?.hours}
-          services={services}
+          services={safeServices}
         />
-        <FaqSection faqs={faqs} />
+        <FaqSection faqs={safeFaqs} />
       </main>
 
-      <SiteFooter clinic={clinic} services={services} dentist={dentist} />
+      <SiteFooter clinic={clinic} services={safeServices} dentist={dentist} />
     </>
   );
 }

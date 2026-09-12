@@ -34,75 +34,109 @@ npm run lint
 
 ---
 
-## 3. Code & Engineering Conventions
+## 3. Source Directory Layout
 
-Established software engineering practices enforced across all frontend code:
+```
+web/src/
+├── app/                        # Next.js App Router entrypoints only
+│   ├── page.tsx                # Default export — route handler
+│   ├── layout.tsx              # Default export — root layout
+│   └── globals.css             # @theme tokens, base styles
+│
+├── components/                 # UI components (kebab-case filenames)
+│   ├── hero-section.tsx
+│   ├── services-section.tsx
+│   └── ...
+│
+├── api/                        # Domain-based data fetching
+│   └── sanity/
+│       ├── client.ts           # Shared sanityFetch<T>() helper
+│       ├── clinic.ts           # getClinic()
+│       ├── services.ts         # getServices()
+│       ├── dentist.ts          # getDentist()
+│       ├── reviews.ts          # getReviews()
+│       └── faqs.ts             # getFaqs()
+│
+├── types/                      # Shared TypeScript interfaces
+│   └── dental-types.ts         # SanityClinic, SanityService, etc.
+│
+├── constants/                  # Static lookup data (SCREAMING_SNAKE_CASE exports)
+│   └── service-categories.ts   # CATEGORY_META
+│
+└── utils/                      # Pure, side-effect-free helper functions
+    ├── format-phone.ts          # formatPhoneHref()
+    └── group-by-category.ts    # groupByCategory()
+```
 
-### Naming Conventions
-- **Components**: Use **kebab-case** for file and folder names (e.g., `hero-section.tsx`, `dentist-card.tsx`, `booking-modal.tsx`). Component function identifiers in code must remain **PascalCase** (`export function HeroSection()`).
-- **Custom Hooks**: Use **camelCase** prefixed with `use` for both file names and function identifiers (e.g., `useMediaQuery.ts`, `useScrollLock.ts`, `useActiveSection.ts`).
-- **Utilities & Helpers**: Use **kebab-case** for utility files (e.g., `format-phone.ts`, `sanity-image.ts`, `date-helpers.ts`). Function exports use **camelCase** (`export function formatPhone()`).
-- **Types & Interfaces**: Use **kebab-case** for type declaration files (e.g., `dental-types.ts`). Type and interface names in code must use **PascalCase** (`interface ClinicLocation`, `type ServiceCategory`).
-- **Constants**: Use **kebab-case** for constant definition files (e.g., `clinic-constants.ts`). Constant identifiers in code must use **SCREAMING_SNAKE_CASE** (`export const DEFAULT_BOOKING_URL = ...`).
+### Directory Rules
 
-### Import & Export Conventions
-- **Top-Level Static Imports Only**: Never import modules inside function bodies or component scopes. Dynamic `import()` or scoped imports are strictly restricted to resolving genuine circular dependencies or explicit Next.js dynamic code-splitting (`next/dynamic`).
-- **Deterministic Import Ordering**: Organize imports into distinct, alphabetized blocks separated by a single newline:
-  1. Node standard library & React core (`react`, `react-dom`)
-  2. Next.js modules (`next/image`, `next/link`, `next/navigation`)
-  3. External third-party packages
-  4. Internal path aliases (`@/components/...`, `@/lib/...`, `@/hooks/...`)
-  5. Relative imports (`./...`, `../...`)
-  6. Type-only imports (`import type { ... } from '...'`)
-- **Type-Only Imports**: Always use `import type { ... }` when importing types or interfaces to ensure zero-cost tree-shaking and avoid circular runtime dependencies.
-- **Named Exports Preferred**: Prefer explicit named exports for components, hooks, and utilities (`export function DentistCard()`). Reserve `default` exports exclusively for Next.js App Router route entrypoints (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`).
-
-### Component Architecture & State
-- **Server Components (RSC) First**: Default to React Server Components for all data fetching and layout rendering.
-- **Leaf-Level `'use client'`**: Only declare `'use client'` on leaf interactive components that require browser events, DOM APIs, or React hooks (e.g., modals, mobile menus, sliders, accordions). Never mark an entire page or data-fetching wrapper as client.
-- **Explicit Props Typing**: Declare an explicit interface or type for every component's props (`interface DentistCardProps { ... }`). Never use inline anonymous object types for complex component props.
-- **Prop Destructuring**: Destructure props directly in the function signature with explicit default values where applicable.
-- **Single Responsibility & Composition**: Keep components focused on a single responsibility. Decompose complex sections into smaller, reusable kebab-case components instead of monolithic multi-hundred-line files.
-- **Defensive CMS Data Handling**: All Sanity CMS fields can be optional or empty. Always use optional chaining (`clinic?.emergencyPhone`) and provide resilient fallback values to prevent runtime crashes.
+- **`api/sanity/`** — one file per Sanity document type. Each file exports a single async fetcher. All HTTP details live in `client.ts` only; domain files never construct URLs.
+- **`types/`** — interfaces and types only, no runtime code. Always import with `import type { ... }`.
+- **`constants/`** — module-level `const` declarations that never change at runtime. No functions, no classes.
+- **`utils/`** — pure functions with no side effects and no framework imports. If it touches React or Next.js, it belongs in a hook or component instead.
+- **`components/`** — UI only. Components must not contain fetch logic; data always flows in via props from Server Component parents.
+- **`app/`** — App Router entrypoints only (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`). Never add shared utilities here.
 
 ---
 
-## 4. Frontend & Design Guidelines
+## 4. Code & Engineering Conventions
+
+### Naming Conventions
+- **Components**: **kebab-case** filenames (e.g., `hero-section.tsx`). Function identifiers **PascalCase** (`export function HeroSection()`).
+- **Custom Hooks**: **camelCase** prefixed with `use` for both filename and identifier (e.g., `useMediaQuery.ts`).
+- **Utilities & Helpers**: **kebab-case** filenames (e.g., `format-phone.ts`). Function exports **camelCase** (`export function formatPhoneHref()`).
+- **Types & Interfaces**: **kebab-case** filenames (e.g., `dental-types.ts`). Type/interface names **PascalCase** (`interface SanityClinic`).
+- **Constants**: **kebab-case** filenames (e.g., `service-categories.ts`). Identifiers **SCREAMING_SNAKE_CASE** (`export const CATEGORY_META = ...`).
+
+### Import & Export Conventions
+- **Top-Level Static Imports Only**: Never import inside function bodies. Dynamic `import()` only for genuine circular deps or `next/dynamic` code-splitting.
+- **Deterministic Import Ordering** — four blocks, each alphabetized, separated by a blank line:
+  1. React core (`react`, `react-dom`)
+  2. Next.js modules (`next/image`, `next/link`, `next/navigation`)
+  3. External third-party packages
+  4. Internal aliases — in this order: `@/api/...`, `@/components/...`, `@/constants/...`, `@/types/...`, `@/utils/...`
+- **Type-Only Imports**: Always `import type { ... }` for interfaces and types.
+- **Named Exports Preferred**: `export function` for everything. `default` export only for App Router entrypoints.
+- **Canonical Import Paths**: Always import from the deepest canonical location, never from a re-export barrel:
+  - ✅ `import type { SanityClinic } from "@/types/dental-types"`
+  - ✅ `import { getClinic } from "@/api/sanity/clinic"`
+  - ❌ `import { ... } from "@/lib/sanity"` — `lib/sanity.ts` has been deleted
+
+### Component Architecture & State
+- **Server Components (RSC) First**: Default to RSC for all data fetching and layout.
+- **Leaf-Level `'use client'`**: Only on interactive leaf components (modals, accordions, sliders). Never mark a page or data-fetching wrapper as client.
+- **Parallel Data Fetching**: In `page.tsx`, always fetch all domains in parallel with `Promise.all([getClinic(), getServices(), ...])`.
+- **Explicit Props Typing**: Every component declares an explicit `interface XxxProps { ... }`. No inline anonymous object types.
+- **Prop Destructuring**: Destructure in the function signature with explicit defaults.
+- **Single Responsibility**: One job per component. Decompose large sections into smaller kebab-case files.
+- **Defensive CMS Data Handling**: All Sanity fields are optional. Use optional chaining (`clinic?.phone`) and nullish fallbacks everywhere.
+
+---
+
+## 5. Frontend & Design Guidelines
 
 Dental practices rely heavily on **trust, cleanliness, professionalism, and accessibility**:
 
 1. **Design Aesthetics & Brand Feel**:
-   - **Color Palette**: Clinical yet welcoming (calm medical blues, soothing teals, soft mints, warm whites, slate neutrals). Avoid harsh neon tones or aggressive clinical greens.
+   - **Color Palette**: Clinical yet welcoming (calm medical blues, soothing teals, soft mints, warm whites, slate neutrals). Avoid harsh neon or aggressive greens.
    - **Typography**: Clean, readable sans-serif (Geist, Inter, Plus Jakarta Sans, Outfit).
-   - **Visual Hierarchy**: Prominent, sticky emergency and "Book Appointment" call-to-actions (phone click-to-call for mobile users).
-   - **Micro-interactions**: Subtle hover states, smooth accordion transitions, and interactive before/after image sliders.
+   - **Visual Hierarchy**: Prominent, sticky emergency and "Book Appointment" CTAs; phone numbers as click-to-call links on mobile.
+   - **Micro-interactions**: Subtle hover states, smooth accordion transitions.
 
 2. **Performance & Core Web Vitals**:
-   - Optimize Sanity images using `@sanity/image-url` (request WebP format, explicit width, and quality parameters). Never render full-resolution raw CMS images.
-   - Always supply `sizes` and `priority` to above-the-fold hero images to keep Largest Contentful Paint (LCP) under 2.5s.
+   - Optimize Sanity images via `@sanity/image-url` (WebP, explicit width + quality). Never render raw full-resolution CMS images.
+   - Supply `sizes` and `priority` on all above-the-fold hero images (LCP target: < 2.5 s).
 
 3. **SEO & Structured Data**:
-   - Generate Schema.org JSON-LD structured data on landing pages:
-     - `@type: "DentalClinic"` or `"Dentist"`
-     - Attributes: `name`, `telephone`, `address`, `geo`, `openingHoursSpecification`, `medicalSpecialty`, `priceRange`.
-   - Include dynamic metadata (`title`, `description`, `openGraph`, `twitter`) tailored to local dental search intents (e.g., "Family & Cosmetic Dentist in [City], [State]").
+   - Generate Schema.org JSON-LD on every page: `@type: "DentalClinic"` with `name`, `telephone`, `address`, `medicalSpecialty`, `priceRange`, `aggregateRating`.
+   - Include dynamic `<Metadata>` (`title`, `description`, `openGraph`) per route, targeting local dental search intents.
 
 4. **Accessibility & Healthcare Compliance**:
-   - WCAG 2.1 AA compliance: Ensure contrast ratios meet accessibility standards.
-   - Phone numbers must use standard `tel:+1...` links for one-tap mobile calling.
-   - **HIPAA / Privacy**: Never collect protected health information (PHI) via simple public contact forms without HIPAA-compliant transport or disclaimers.
+   - WCAG 2.1 AA: all interactive elements must meet contrast and focus requirements.
+   - Phone numbers must use `tel:` href links for one-tap mobile calling — use `formatPhoneHref()` from `@/utils/format-phone`.
+   - **HIPAA / Privacy**: Never collect PHI via public contact forms without HIPAA-compliant transport or disclaimers.
 
 5. **Tailwind CSS v4 Standards**:
-   - Use standard Tailwind v4 utility classes.
-   - Configure custom brand colors and design tokens via `@theme` variables in `src/app/globals.css`.
-   - Never import code from `studio/` or relative paths outside `web/`.
-
-<!-- BEGIN:nextjs-agent-rules -->
-
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+   - Standard Tailwind v4 utility classes only.
+   - Custom brand tokens via `@theme` in `src/app/globals.css`.
+   - Never cross-import from `studio/` or any path outside `web/`.

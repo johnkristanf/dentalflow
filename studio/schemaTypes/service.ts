@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import {defineType, defineField} from 'sanity'
 
 export const service = defineType({
   name: 'service',
@@ -18,18 +18,42 @@ export const service = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'procedures',
+      title: 'Procedures',
+      type: 'array',
+      description: 'List of specific procedures under this service',
+      of: [
+        {
+          type: 'object',
+          name: 'procedure',
+          title: 'Procedure',
+          fields: [
+            defineField({
+              name: 'name',
+              title: 'Procedure Name',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'why',
+              title: 'Why Does the Patient Need It?',
+              type: 'text',
+              rows: 2,
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: {title: 'name', subtitle: 'why'},
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'category',
       title: 'Category',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'General Dentistry', value: 'General' },
-          { title: 'Cosmetic Dentistry', value: 'Cosmetic' },
-          { title: 'Restorative Care', value: 'Restorative' },
-          { title: 'Emergency Care', value: 'Emergency' },
-          { title: 'Orthodontics', value: 'Orthodontics' },
-        ],
-      },
+      type: 'reference',
+      to: [{type: 'serviceCategory'}],
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'highlight',
@@ -47,12 +71,14 @@ export const service = defineType({
   preview: {
     select: {
       title: 'name',
-      subtitle: 'category',
+      categoryName: 'category.name',
+      categoryIcon: 'category.icon',
     },
-    prepare({ title, subtitle }) {
+    prepare({title, categoryName, categoryIcon}) {
+      const cat = [categoryIcon, categoryName].filter(Boolean).join(' ')
       return {
         title: title || 'Unnamed Service',
-        subtitle: subtitle || 'Dental Service',
+        subtitle: cat || 'Dental Service',
       }
     },
   },

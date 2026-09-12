@@ -1,4 +1,4 @@
-import type { SanityClinic } from "@/lib/sanity";
+import type { SanityClinic } from "@/types/dental-types";
 
 interface InfoSectionProps {
   clinic?: SanityClinic | null;

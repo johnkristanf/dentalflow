@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { SanityService } from "@/lib/sanity";
+import type { SanityService } from "@/types/dental-types";
 
 interface FormState {
   name: string;

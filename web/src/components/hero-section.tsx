@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { SanityClinic } from "@/lib/sanity";
+
+import type { SanityClinic } from "@/types/dental-types";
+import { formatPhoneHref } from "@/utils/format-phone";
 
 interface HeroSectionProps {
   clinic?: SanityClinic | null;
@@ -9,7 +11,7 @@ interface HeroSectionProps {
 export function HeroSection({ clinic }: HeroSectionProps) {
   if (!clinic) return null;
 
-  const phoneHref = clinic.phone ? `tel:${clinic.phone.replace(/[^+\d]/g, "")}` : null;
+  const phoneHref = formatPhoneHref(clinic.phone);
   const trustBadges = [
     "✓ Accepting New Patients",
     clinic.insurances && clinic.insurances.length > 0 ? "✓ Insurance Accepted" : null,

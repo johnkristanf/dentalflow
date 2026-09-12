@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { SanityFaq } from "@/lib/sanity";
+import type { SanityFaq } from "@/types/dental-types";
 
 interface FaqItemProps {
   id: string;
