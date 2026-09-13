@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 import type { SanityServiceCategory } from "@/types/dental-types";
+import { BOOKING_URL } from "@/constants/booking";
 import { formatPhoneHref } from "@/utils/format-phone";
 
 interface ServicesSectionProps {
@@ -77,7 +78,7 @@ export function ServicesSection({ categories, emergencyPhone, emergencyNotice }:
             </div>
           </div>
 
-          {/* Service cards */}
+          {/* Service cards — minimal: icon + name + tagline + Show Details */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {(active.services ?? []).length === 0 ? (
               <p className="col-span-full text-center text-slate-400 py-8 text-sm">
@@ -85,26 +86,25 @@ export function ServicesSection({ categories, emergencyPhone, emergencyNotice }:
               </p>
             ) : (
               (active.services ?? []).map((s) => (
-              <article
-                key={s._id}
-                id={`service-${s._id}`}
-                className={`relative rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
-                  s.highlight
-                    ? "border-blue-300 bg-gradient-to-br from-blue-50 to-white shadow-md shadow-blue-100"
-                    : "border-slate-200 bg-white hover:border-blue-200"
-                }`}
-              >
-                {s.highlight && (
-                  <span className="absolute top-4 right-4 bg-blue-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                    Popular
-                  </span>
-                )}
+                <article
+                  key={s._id}
+                  id={`service-${s._id}`}
+                  className={`relative rounded-2xl border p-6 flex flex-col gap-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl ${
+                    s.highlight
+                      ? "border-blue-300 bg-gradient-to-br from-blue-50 to-white shadow-md shadow-blue-100"
+                      : "border-slate-200 bg-white hover:border-blue-200"
+                  }`}
+                >
+                  {s.highlight && (
+                    <span className="absolute top-4 right-4 bg-blue-500 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                      Popular
+                    </span>
+                  )}
 
-                {/* Icon + name + tagline */}
-                <div>
+                  {/* Category icon */}
                   {active.icon && (
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 text-xl ${
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl ${
                         s.highlight ? "bg-blue-500 text-white" : "bg-blue-50"
                       }`}
                       aria-hidden="true"
@@ -112,41 +112,25 @@ export function ServicesSection({ categories, emergencyPhone, emergencyNotice }:
                       {active.icon}
                     </div>
                   )}
-                  <h4 className="font-bold text-slate-900 text-base mb-1">{s.name}</h4>
-                  <p className="text-slate-500 text-sm leading-relaxed">{s.tagline}</p>
-                </div>
 
-                {/* Procedures list */}
-                {s.procedures && s.procedures.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                      Procedures
-                    </p>
-                    <ul className="space-y-3" aria-label={`${s.name} procedures`}>
-                      {s.procedures.map((proc, i) => (
-                        <li key={i} className="flex items-start gap-2.5">
-                          <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" aria-hidden="true" />
-                          <div>
-                            <span className="text-sm font-semibold text-slate-800 block">{proc.name}</span>
-                            <span className="text-xs text-slate-500 leading-relaxed">{proc.why}</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                  {/* Name + tagline */}
+                  <div className="flex-1">
+                    <h4 className="font-bold text-slate-900 text-base mb-1">{s.name}</h4>
+                    <p className="text-slate-500 text-sm leading-relaxed">{s.tagline}</p>
                   </div>
-                )}
 
-                {/* Per-card booking link */}
-                <Link
-                  href="#booking"
-                  id={`book-${s._id}`}
-                  className="mt-auto inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors group"
-                >
-                  Book this service
-                  <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform inline-block">→</span>
-                </Link>
-              </article>
-            )))}
+                  {/* Show Details CTA */}
+                  <Link
+                    href={s.slug ? `/services/${s.slug}` : "#services"}
+                    id={`details-${s._id}`}
+                    className="mt-auto inline-flex items-center gap-1.5 text-blue-600 text-sm font-semibold hover:text-blue-800 transition-colors group"
+                  >
+                    Show Details
+                    <span aria-hidden="true" className="group-hover:translate-x-1 transition-transform inline-block">→</span>
+                  </Link>
+                </article>
+              ))
+            )}
           </div>
         </div>
 
@@ -171,16 +155,17 @@ export function ServicesSection({ categories, emergencyPhone, emergencyNotice }:
 
         {/* Bottom CTA */}
         <div className="text-center mt-14">
-          <Link
-            href="#booking"
+          <a
+            href={BOOKING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             id="services-book-cta"
             className="inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-4 rounded-full transition-colors shadow-md shadow-blue-200"
           >
             Book Any Service Today
-          </Link>
+          </a>
         </div>
       </div>
     </section>
   );
 }
-

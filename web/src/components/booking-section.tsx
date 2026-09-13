@@ -28,6 +28,8 @@ export function BookingSection({
 }: BookingSectionProps) {
   const [form, setForm] = useState<FormState>(initialForm);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const phoneHref = phone ? `tel:${phone.replace(/[^+\d]/g, "")}` : null;
   const hoursSummary = hours && hours.length > 0
@@ -40,9 +42,30 @@ export function BookingSection({
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as { error?: string }).error ?? "Something went wrong. Please try again.");
+      }
+
+      setSubmitted(true);
+      setForm(initialForm);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const inputClass =
@@ -91,12 +114,11 @@ export function BookingSection({
           {/* What to expect */}
           <div className="space-y-3">
             {[
-              { icon: "⚡", label: "Prompt confirmation", desc: "We confirm your slot during regular clinic hours." },
-              { icon: "🔒", label: "Your info stays private", desc: "We strictly adhere to patient data privacy." },
-              { icon: "📋", label: "No pressure", desc: "Transparent treatment plans and consultations." },
-            ].map(({ icon, label, desc }) => (
+              { label: "Prompt confirmation", desc: "We confirm your slot during regular clinic hours." },
+              { label: "Your info stays private", desc: "We strictly adhere to patient data privacy." },
+              { label: "No pressure", desc: "Transparent treatment plans and consultations." },
+            ].map(({ label, desc }) => (
               <div key={label} className="flex items-start gap-3">
-                <span className="text-xl flex-shrink-0 mt-0.5">{icon}</span>
                 <div>
                   <p className="text-sm font-semibold text-slate-900">{label}</p>
                   <p className="text-xs text-slate-500">{desc}</p>
@@ -225,12 +247,19 @@ export function BookingSection({
                 </select>
               </div>
 
+              {submitError && (
+                <p role="alert" className="text-sm text-red-600 font-medium bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  {submitError}
+                </p>
+              )}
+
               <button
                 type="submit"
                 id="booking-submit-btn"
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-4 rounded-xl transition-colors shadow-md shadow-blue-200 mt-2"
+                disabled={submitting}
+                className="w-full bg-blue-500 hover:bg-blue-600 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-colors shadow-md shadow-blue-200 mt-2"
               >
-                Request Appointment →
+                {submitting ? "Sending…" : "Request Appointment →"}
               </button>
 
               <p className="text-center text-xs text-slate-400">

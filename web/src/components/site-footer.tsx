@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { SanityClinic, SanityDentist, SanityService } from "@/types/dental-types";
+import { BOOKING_URL } from "@/constants/booking";
 
 interface SiteFooterProps {
   clinic?: SanityClinic | null;
@@ -20,11 +21,12 @@ export function SiteFooter({ clinic, services, dentist }: SiteFooterProps) {
   const hasAddress = street || city || state || zip;
 
   const quickLinks = [
-    { label: dentist?.name ? `About ${dentist.name}` : "About Us", href: "#about" },
-    { label: "Patient Reviews", href: "#reviews" },
-    { label: "Location & Hours", href: "#contact" },
-    { label: "Book Appointment", href: "#booking" },
-    { label: "FAQ", href: "#faq" },
+    { label: "Smile Gallery", href: "/gallery" },
+    { label: dentist?.name ? `About ${dentist.name}` : "About Us", href: "/#about" },
+    { label: "Patient Reviews", href: "/#reviews" },
+    { label: "Location & Hours", href: "/#contact" },
+    { label: "Book Appointment", href: BOOKING_URL },
+    { label: "FAQ", href: "/#faq" },
   ];
 
   return (
@@ -51,12 +53,14 @@ export function SiteFooter({ clinic, services, dentist }: SiteFooterProps) {
                 {phone}
               </a>
             )}
-            <Link
-              href="#booking"
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 bg-white text-blue-600 font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform shadow"
             >
               Book Online
-            </Link>
+            </a>
           </div>
         </div>
       </div>
@@ -128,12 +132,23 @@ export function SiteFooter({ clinic, services, dentist }: SiteFooterProps) {
           <ul className="space-y-2">
             {quickLinks.map(({ label, href }) => (
               <li key={label}>
-                <Link
-                  href={href}
-                  className="text-slate-400 text-sm hover:text-white transition-colors"
-                >
-                  {label}
-                </Link>
+                {href.startsWith("http") ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-slate-400 text-sm hover:text-white transition-colors"
+                  >
+                    {label}
+                  </a>
+                ) : (
+                  <Link
+                    href={href}
+                    className="text-slate-400 text-sm hover:text-white transition-colors"
+                  >
+                    {label}
+                  </Link>
+                )}
               </li>
             ))}
           </ul>

@@ -1,3 +1,6 @@
+import Image from "next/image";
+import Link from "next/link";
+
 import type { SanityDentist, SanityReview } from "@/types/dental-types";
 
 function StarRating({ rating }: { rating: number }) {
@@ -48,16 +51,29 @@ export function TrustSection({ dentist, reviews, rating, reviewCount }: TrustSec
         {/* Dentist bio */}
         {hasDentist && (
           <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
-            {/* Photo placeholder */}
+            {/* Photo */}
             <div className="relative">
-              <div className="aspect-[4/5] rounded-3xl overflow-hidden bg-gradient-to-br from-blue-100 to-blue-200 flex flex-col items-center justify-center shadow-xl shadow-blue-100">
-                <div className="w-28 h-28 rounded-full bg-blue-300/60 flex items-center justify-center mb-4">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-14 h-14" aria-hidden="true">
-                    <path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z" />
-                  </svg>
-                </div>
-                {dentist.name && <p className="text-blue-700 font-bold">{dentist.name}</p>}
-                {dentist.role && <p className="text-blue-500 text-sm">{dentist.role}</p>}
+              <div className="aspect-[4/5] rounded-3xl overflow-hidden relative shadow-xl shadow-blue-100/60 bg-gradient-to-br from-blue-100 to-blue-200 flex flex-col items-center justify-center">
+                {dentist.photo?.url ? (
+                  <Image
+                    src={dentist.photo.url}
+                    alt={dentist.photo.alt || dentist.name || "Dentist photo"}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center">
+                    <div className="w-28 h-28 rounded-full bg-blue-300/60 flex items-center justify-center mb-4">
+                      <svg viewBox="0 0 24 24" fill="white" className="w-14 h-14" aria-hidden="true">
+                        <path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4z" />
+                      </svg>
+                    </div>
+                    {dentist.name && <p className="text-blue-700 font-bold">{dentist.name}</p>}
+                    {dentist.role && <p className="text-blue-500 text-sm">{dentist.role}</p>}
+                  </div>
+                )}
               </div>
 
               {/* Credentials floating card */}
@@ -84,26 +100,14 @@ export function TrustSection({ dentist, reviews, rating, reviewCount }: TrustSec
               {dentist.bio && (
                 <p className="text-slate-600 leading-relaxed mb-6 whitespace-pre-line">{dentist.bio}</p>
               )}
-              <div className="flex flex-wrap gap-3">
-                {reviewCount != null && (
-                  <div className="bg-blue-50 rounded-2xl px-5 py-3 text-center border border-blue-100">
-                    <p className="text-2xl font-extrabold text-blue-600">{reviewCount}+</p>
-                    <p className="text-xs text-slate-500 mt-0.5">5-Star Reviews</p>
-                  </div>
-                )}
-                {dentist.patientsServed != null && (
-                  <div className="bg-blue-50 rounded-2xl px-5 py-3 text-center border border-blue-100">
-                    <p className="text-2xl font-extrabold text-blue-600">{dentist.patientsServed.toLocaleString()}+</p>
-                    <p className="text-xs text-slate-500 mt-0.5">Happy Patients</p>
-                  </div>
-                )}
-                {dentist.yearsExperience != null && (
+              {dentist.yearsExperience != null && (
+                <div className="flex flex-wrap gap-3">
                   <div className="bg-blue-50 rounded-2xl px-5 py-3 text-center border border-blue-100">
                     <p className="text-2xl font-extrabold text-blue-600">{dentist.yearsExperience}+</p>
                     <p className="text-xs text-slate-500 mt-0.5">Years Experience</p>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -115,12 +119,13 @@ export function TrustSection({ dentist, reviews, rating, reviewCount }: TrustSec
             Real transformations from real patients — veneers, whitening, Invisalign, and
             implant cases. Browse our smile gallery to envision your own results.
           </p>
-          <button
+          <Link
             id="view-gallery-btn"
-            className="bg-white text-blue-600 font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform shadow"
+            href="/gallery"
+            className="inline-block bg-white text-blue-600 font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform shadow"
           >
             View Smile Gallery
-          </button>
+          </Link>
         </div>
 
         {/* Reviews */}

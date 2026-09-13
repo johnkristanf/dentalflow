@@ -2,8 +2,8 @@ import type { SanityServiceCategory } from "@/types/dental-types";
 
 import { sanityFetch } from "./client";
 
-export function getServiceCategories(): Promise<SanityServiceCategory[]> {
-  return sanityFetch<SanityServiceCategory[]>(`
+export async function getServiceCategories(): Promise<SanityServiceCategory[]> {
+  const data = await sanityFetch<SanityServiceCategory[]>(`
     *[_type == "serviceCategory"] | order(order asc, _createdAt asc) {
       _id,
       name,
@@ -13,10 +13,13 @@ export function getServiceCategories(): Promise<SanityServiceCategory[]> {
       "services": *[_type == "service" && references(^._id)] | order(order asc, _createdAt asc) {
         _id,
         name,
+        "slug": slug.current,
         tagline,
         highlight,
+        symptoms,
         procedures
       }
     }
   `);
+  return data ?? [];
 }

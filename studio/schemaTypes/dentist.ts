@@ -18,6 +18,21 @@ export const dentist = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'photo',
+      title: 'Dentist Photo',
+      type: 'image',
+      description: 'Portrait or professional photo of the dentist. Displayed in the trust & about section.',
+      options: { hotspot: true },
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt Text',
+          type: 'string',
+          description: 'Describe the photo for accessibility (e.g. "Dr. Sarah Chen, lead dentist").',
+        }),
+      ],
+    }),
+    defineField({
       name: 'credentials',
       title: 'Credentials (e.g. DDS, FAGD)',
       type: 'string',
@@ -31,11 +46,6 @@ export const dentist = defineType({
     defineField({
       name: 'yearsExperience',
       title: 'Years of Experience',
-      type: 'number',
-    }),
-    defineField({
-      name: 'patientsServed',
-      title: 'Patients Served (approximate count)',
       type: 'number',
     }),
     defineField({
@@ -54,11 +64,13 @@ export const dentist = defineType({
     select: {
       title: 'name',
       subtitle: 'role',
+      media: 'photo',
     },
-    prepare({ title, subtitle }) {
+    prepare({ title, subtitle, media }) {
       return {
         title: title || 'Dentist Profile',
         subtitle: subtitle || 'Practitioner',
+        media,
       }
     },
   },

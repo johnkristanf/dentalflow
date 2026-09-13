@@ -1,7 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
-
 import type { SanityClinic } from "@/types/dental-types";
+import { BOOKING_URL } from "@/constants/booking";
 import { formatPhoneHref } from "@/utils/format-phone";
 
 interface HeroSectionProps {
@@ -80,8 +79,10 @@ export function HeroSection({ clinic }: HeroSectionProps) {
 
           {/* CTA row */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="#booking"
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               id="hero-book-btn"
               className="inline-flex items-center justify-center gap-2 bg-white text-blue-600 font-bold px-7 py-4 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
             >
@@ -89,7 +90,7 @@ export function HeroSection({ clinic }: HeroSectionProps) {
                 <path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.9 3 3 3.9 3 5v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z" />
               </svg>
               Book an Appointment
-            </Link>
+            </a>
             {phoneHref && clinic.phone && (
               <a
                 href={phoneHref}
@@ -122,35 +123,35 @@ export function HeroSection({ clinic }: HeroSectionProps) {
 
         {/* Right: clinic photo or placeholder */}
         <div className="relative hidden md:block">
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/30 aspect-[4/5]">
-            {photoUrl ? (
+          {photoUrl ? (
+            <div className="relative w-full aspect-[4/5] flex items-end justify-center">
               <Image
                 src={photoUrl}
                 alt={photoAlt}
                 fill
-                className="object-cover"
+                className="object-contain object-bottom"
                 sizes="(max-width: 768px) 0px, 50vw"
                 priority
               />
-            ) : (
-              /* Placeholder shown until a photo is uploaded in Sanity */
-              <div className="w-full h-full bg-gradient-to-br from-white/30 to-blue-200/20 flex flex-col items-center justify-center gap-4">
-                <div className="w-32 h-32 rounded-full bg-white/30 flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" fill="white" className="w-16 h-16 opacity-80" aria-hidden="true">
-                    <path d="M12 2C8.5 2 6 4.5 6 6c0 1 .4 2 1 2.8C5.7 9.8 5 11.3 5 13c0 3.3 2.7 7 5 8.5.4.3.7.5 1 .5.3 0 .6-.2 1-.5C14.3 20 17 16.3 17 13c0-1.7-.7-3.2-2-4.2.6-.8 1-1.8 1-2.8 0-2.5-2.5-4-4-4z" />
-                  </svg>
-                </div>
-                {clinic.name && <p className="text-white/70 text-sm font-medium">{clinic.name}</p>}
-                {clinic.address?.city && clinic.address?.state && (
-                  <p className="text-white/50 text-xs">{clinic.address.city}, {clinic.address.state}</p>
-                )}
+            </div>
+          ) : (
+            /* Placeholder shown until a photo is uploaded in Sanity */
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-blue-900/30 aspect-[4/5] w-full bg-gradient-to-br from-white/30 to-blue-200/20 flex flex-col items-center justify-center gap-4">
+              <div className="w-32 h-32 rounded-full bg-white/30 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="white" className="w-16 h-16 opacity-80" aria-hidden="true">
+                  <path d="M12 2C8.5 2 6 4.5 6 6c0 1 .4 2 1 2.8C5.7 9.8 5 11.3 5 13c0 3.3 2.7 7 5 8.5.4.3.7.5 1 .5.3 0 .6-.2 1-.5C14.3 20 17 16.3 17 13c0-1.7-.7-3.2-2-4.2.6-.8 1-1.8 1-2.8 0-2.5-4-4-4z" />
+                </svg>
               </div>
-            )}
-          </div>
+              {clinic.name && <p className="text-white/70 text-sm font-medium">{clinic.name}</p>}
+              {clinic.address?.city && clinic.address?.state && (
+                <p className="text-white/50 text-xs">{clinic.address.city}, {clinic.address.state}</p>
+              )}
+            </div>
+          )}
 
           {/* Floating stat cards — rating + years experience */}
           {stats.length > 0 && (
-            <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl px-5 py-4 shadow-xl flex items-center gap-4">
+            <div className="absolute -bottom-6 -left-6 bg-white rounded-2xl px-5 py-4 shadow-xl flex items-center gap-4 z-10">
               {stats.map((stat, i) => (
                 <div key={stat.label} className="flex items-center gap-3">
                   {i > 0 && <div className="w-px h-10 bg-slate-200" />}

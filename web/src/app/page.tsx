@@ -5,7 +5,6 @@ import { getClinic } from "@/api/sanity/clinic";
 import { getDentist } from "@/api/sanity/dentist";
 import { getFaqs } from "@/api/sanity/faqs";
 import { getReviews } from "@/api/sanity/reviews";
-import { BookingSection } from "@/components/booking-section";
 import { FaqSection } from "@/components/faq-section";
 import { HeroSection } from "@/components/hero-section";
 import { InfoSection } from "@/components/info-section";
@@ -124,12 +123,12 @@ export default async function HomePage() {
           reviewCount={clinic?.reviewCount}
         />
         <InfoSection clinic={clinic} />
-        <BookingSection
+        {/* <BookingSection
           phone={clinic?.phone}
           clinicName={clinic?.name}
           hours={clinic?.hours}
           services={safeServices}
-        />
+        /> */}
         <FaqSection faqs={safeFaqs} />
       </main>
 

@@ -34,9 +34,12 @@ export interface SanityServiceCategory {
 export interface SanityService {
   _id: string;
   name: string;
+  slug?: string;
   tagline: string;
   highlight?: boolean;
-  procedures?: { name: string; why: string }[];
+  category?: string;
+  symptoms?: string[];
+  procedures?: { name: string; description?: string; why?: string }[];
 }
 
 export interface SanityDentist {
@@ -48,6 +51,10 @@ export interface SanityDentist {
   patientsServed?: number;
   satisfactionRate?: number;
   education?: string[];
+  photo?: {
+    url?: string;
+    alt?: string;
+  };
 }
 
 export interface SanityReview {

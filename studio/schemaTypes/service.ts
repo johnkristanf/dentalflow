@@ -12,10 +12,28 @@ export const service = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'URL Slug',
+      type: 'slug',
+      description: 'Auto-generated from the service name — used in the URL /services/[slug]',
+      options: {source: 'name', maxLength: 96},
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'tagline',
       title: 'Short Description / Tagline',
       type: 'string',
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'symptoms',
+      title: 'Signs & Symptoms / When You Need This',
+      type: 'array',
+      description: 'Key warning signs or symptoms indicating a patient needs this service (e.g. bleeding gums, chronic toothache, discolored enamel)',
+      of: [{type: 'string'}],
+      options: {
+        layout: 'tags',
+      },
     }),
     defineField({
       name: 'procedures',
@@ -35,15 +53,16 @@ export const service = defineType({
               validation: (Rule) => Rule.required(),
             }),
             defineField({
-              name: 'why',
-              title: 'Why Does the Patient Need It?',
+              name: 'description',
+              title: 'Procedure Description',
               type: 'text',
               rows: 2,
+              description: 'Step-by-step or clinical explanation of what happens during this procedure',
               validation: (Rule) => Rule.required(),
             }),
           ],
           preview: {
-            select: {title: 'name', subtitle: 'why'},
+            select: {title: 'name', subtitle: 'description'},
           },
         },
       ],

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { BOOKING_URL } from "@/constants/booking";
 
 interface SiteNavProps {
   clinicName?: string;
@@ -20,11 +21,12 @@ export function SiteNav({ clinicName, phone }: SiteNavProps) {
   }, []);
 
   const links = [
-    { label: "Services", href: "#services" },
-    { label: "About", href: "#about" },
-    { label: "Reviews", href: "#reviews" },
-    { label: "FAQ", href: "#faq" },
-    { label: "Contact", href: "#contact" },
+    { label: "Services", href: "/#services" },
+    { label: "Smile Gallery", href: "/gallery" },
+    { label: "About", href: "/#about" },
+    { label: "Reviews", href: "/#reviews" },
+    { label: "FAQ", href: "/#faq" },
+    { label: "Contact", href: "/#contact" },
   ];
 
   return (
@@ -76,12 +78,14 @@ export function SiteNav({ clinicName, phone }: SiteNavProps) {
               {phone}
             </a>
           )}
-          <Link
-            href="#booking"
+          <a
+            href={BOOKING_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-full transition-colors shadow-sm shadow-blue-200"
           >
             Book Appointment
-          </Link>
+          </a>
 
           {/* Mobile hamburger */}
           <button
@@ -128,6 +132,15 @@ export function SiteNav({ clinicName, phone }: SiteNavProps) {
                 {phone}
               </a>
             )}
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setMenuOpen(false)}
+              className="mt-3 block text-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-full transition-colors shadow-sm shadow-blue-200"
+            >
+              Book Appointment
+            </a>
           </nav>
         </div>
       )}
